@@ -6,3 +6,7 @@ INFO in __init__: this is the plain message
 INFO in __init__: this is the plain message
 [2022-04-14 18:08:45,196] 172.21.0.1 requested http://localhost/
 INFO in __init__: this is the plain message
+[2022-04-18 17:04:42,681] 172.21.0.1 requested http://localhost/
+INFO in __init__: this is the plain message
+[2022-04-18 17:05:20,918] 172.21.0.1 requested http://localhost/
+INFO in __init__: this is the plain message
