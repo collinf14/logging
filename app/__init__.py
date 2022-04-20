@@ -13,7 +13,7 @@ from flask_wtf.csrf import CSRFProtect
 
 from app.auth import auth
 from app.auth import auth
-from app.cli import create_database
+from app.cli import create_database, create_log_folder
 from app.context_processors import utility_text_processors
 from app.db import db
 from app.db.models import User
@@ -22,6 +22,8 @@ from app.simple_pages import simple_pages
 import logging
 from flask.logging import default_handler
 
+from app.log_formatter import RequestFormatter
+
 login_manager = flask_login.LoginManager()
 
 
@@ -29,16 +31,16 @@ def page_not_found(e):
     return render_template("404.html"), 404
 
 
-class RequestFormatter(logging.Formatter):
-    def format(self, record):
-        if has_request_context():
-            record.url = request.url
-            record.remote_addr = request.remote_addr
-        else:
-            record.url = None
-            record.remote_addr = None
+#class RequestFormatter(logging.Formatter):
+ #   def format(self, record):
+  #      if has_request_context():
+   #         record.url = request.url
+    #        record.remote_addr = request.remote_addr
+     #   else:
+      #      record.url = None
+       #     record.remote_addr = None
 
-        return super().format(record)
+        #return super().format(record)
 
 
 def create_app():
@@ -61,6 +63,7 @@ def create_app():
     db.init_app(app)
     # add command function to cli commands
     app.cli.add_command(create_database)
+    app.cli.add_command(create_log_folder)
 
     # Deactivate the default flask logger so that log messages don't get duplicated
     app.logger.removeHandler(default_handler)
@@ -78,8 +81,8 @@ def create_app():
     handler = logging.FileHandler(log_file)
     # Create a log file formatter object to create the entry in the log
     formatter = RequestFormatter(
-        '[%(asctime)s] %(remote_addr)s requested %(url)s\n'
-        '%(levelname)s in %(module)s: %(message)s'
+        '%(levelname)s,%(asctime)s,%(module)s,%(message)s,%(remote_addr)s,%(url)s,%(request_method)s,'
+        '%(request_path)s,%(ip)s,%(host)s,%(args)s '
     )
     # set the formatter for the log entry
     handler.setFormatter(formatter)
@@ -100,7 +103,7 @@ def create_app():
             return response
         elif request.path.startswith('/bootstrap'):
             return response
-
+# take away start
         now = time.time()
         duration = round(now - g.start, 2)
         dt = datetime.datetime.fromtimestamp(now)
@@ -130,7 +133,9 @@ def create_app():
             part = name + ': ' + str(value) + ', '
             parts.append(part)
         line = " ".join(parts)
-        #this triggers a log entry to be created with whatever is in the line variable
+        # take away end
+
+        # this triggers a log entry to be created with whatever is in the line variable
         app.logger.info('this is the plain message')
 
         return response
